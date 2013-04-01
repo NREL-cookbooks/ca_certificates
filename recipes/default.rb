@@ -26,3 +26,15 @@ end
 link "/opt/chef/embedded/ssl/cert.pem" do
   to "/etc/ssl/certs/ca-bundle.crt"
 end
+
+# Setup environment variables to force certain applications to use the system
+# CA bundle. 
+template "/etc/profile.d/ca_certificates.sh" do
+  source  "profile.sh.erb"
+  owner   "root"
+  mode    "0644"
+end
+
+# Make sure anything set in profile.d is set on the current environment, so
+# Chef won't fail on first run.
+ENV["PIP_CERT"] = "/etc/ssl/certs/ca-bundle.crt"
