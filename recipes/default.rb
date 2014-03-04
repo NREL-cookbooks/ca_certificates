@@ -8,6 +8,8 @@
 #
 
 certs = []
+
+# Read custom certs out of the data bag.
 begin
   certs = data_bag("ca_certificates").map do |item|
     data_bag_item("ca_certificates", item)
@@ -15,6 +17,12 @@ begin
 rescue
   Chef::Log.info "Could not load data bag 'ca_certificates'"
 end
+
+# Also read custom certs out of the attributes.
+certs += node[:ca_certificates][:certs]
+
+# Remove duplicate certs.
+certs.uniq! { |cert| cert['pem'] }
 
 template "/etc/ssl/certs/ca-bundle.crt" do
   source "ca-bundle.crt.erb" 
